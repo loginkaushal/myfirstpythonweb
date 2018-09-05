@@ -1,0 +1,28 @@
+import json
+import boto3
+import os
+from boto3.dynamodb.conditions import Key, Attr
+
+def lambda_handler(event, context):
+    # TODO implement
+    EmpID = event["EmpID"]
+    EmpName = event["EmpName"]
+    DOJ = event["DOJ"]
+    
+    dynamodb = boto3.resource('dynamodb')
+    
+    table = dynamodb.Table(os.environ['DB_TABLE_NAME'])
+    table.update_item(
+        Key={'EmpID':EmpID},
+          UpdateExpression=
+            "SET #empname = :emnamevalue, #DOJ = :dojvalue",                   
+          ExpressionAttributeValues=
+            {':emnamevalue': EmpName, ':dojvalue': DOJ},
+        ExpressionAttributeNames=
+          {'#empname': 'EmpName', '#DOJ': 'DOJ'},
+    )
+    
+    return {
+        "statusCode": 200,
+        "body": json.dumps('Record Updated')
+    }
